@@ -2,44 +2,45 @@
 requires = ["flit_core >=3.2,<4"]
 build-backend = "flit_core.buildapi"
 
-[tool.flit.module]
-name = "ccds"
-
 [project]
-name = "cookiecutter-data-science"
-version = "2.3.0"
-description = "A logical, reasonably standardized but flexible project structure for doing and sharing data science work."
+name = {{ cookiecutter.module_name|tojson }}
+version = "0.0.1"
+description = {{ cookiecutter.description|tojson }}
 authors = [
-  { name = "DrivenData", email = "info@drivendata.org" },
+  { name = {{ cookiecutter.author_name|tojson }} },
 ]
-license = { file = "LICENSE" }
+{% if cookiecutter.open_source_license != 'No license file' %}license = { file = "LICENSE" }{% endif %}
 readme = "README.md"
 classifiers = [
-  "Development Status :: 5 - Production/Stable",
-  "Intended Audience :: Developers",
-  "Intended Audience :: Science/Research",
-  "License :: OSI Approved :: MIT License",
-  "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3.9",
-  "Programming Language :: Python :: 3.10",
-  "Programming Language :: Python :: 3.11",
-  "Programming Language :: Python :: 3.12",
-  "Programming Language :: Python :: 3.13",
-  "Topic :: Scientific/Engineering",
-  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Programming Language :: Python :: 3",
+    {% if cookiecutter.open_source_license == 'MIT' %}"License :: OSI Approved :: MIT License"{% elif cookiecutter.open_source_license == 'BSD-3-Clause' %}"License :: OSI Approved :: BSD License"{% endif %}
 ]
-requires-python = ">=3.9"
-dependencies = [
-  "click",
-  "cookiecutter",
-  "tomlkit",
-]
+{% if cookiecutter.linting_and_formatting == 'flake8+black+isort' %}
+[tool.black]
+line-length = 99
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.venv
+)/
+'''
 
-[project.scripts]
-ccds = "ccds.__main__:main"
+[tool.isort]
+profile = "black"
+known_first_party = ["{{ cookiecutter.module_name }}"]
+force_sort_within_sections = true
+{% endif %}
+{% if cookiecutter.linting_and_formatting == 'ruff' %}
+[tool.ruff]
+line-length = 99
+src = ["{{ cookiecutter.module_name }}"]
+include = ["pyproject.toml", "{{ cookiecutter.module_name }}/**/*.py"]
 
-[project.urls]
-"Homepage" = "https://cookiecutter-data-science.drivendata.org/"
-"Source Code" = "https://github.com/drivendataorg/cookiecutter-data-science/"
-"Bug Tracker" = "https://github.com/drivendataorg/cookiecutter-data-science/issues"
-"DrivenData" = "https://drivendata.co"
+[tool.ruff.lint]
+extend-select = ["I"]  # Add import sorting
+
+[tool.ruff.lint.isort]
+known-first-party = ["{{ cookiecutter.module_name }}"]
+force-sort-within-sections = true
+{% endif %}
